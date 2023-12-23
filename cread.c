@@ -32,11 +32,11 @@ char *dest_file = NULL;
 
 char buf[BUF_SIZE];
 
-static char const *const short_options = "r:w:d:";
+static char const *const short_options = "e:d:o:";
 static struct option const long_options[] = {
-    {"read", no_argument, NULL, 'r'},
-    {"write", no_argument, NULL, 'w'},
-    {"dest", required_argument, NULL, 'd'},
+    {"decrypt", required_argument, NULL, 'd'},
+    {"encrypt", required_argument, NULL, 'e'},
+    {"output", required_argument, NULL, 'o'},
     {"help", no_argument, NULL, 'h'}, // TODO: remove h flag
     {NULL, 0, NULL, 0}};
 
@@ -45,22 +45,22 @@ void print_usage()
     printf("Usage: %s [OPTION] <filename> \n", PROGRAM_NAME);
 
     fputs("OPTIONS:\n"
-          "-r, --read         Decrypt the file with given password and read encrypted file\n"
-          "-w, --write        Encrypt the file with given password to filename provided by --dest\n"
-          "-d, --dest         Destination file for -w option (if not provided, program will create same file with .enc extension)\n"
-          "    --help         Print this help message\n",
+          "-d, --decrypt        Decrypt the file with given password and read encrypted file\n"
+          "-e, --encrypt        Encrypt the file with given password to filename provided by --output\n"
+          "-o, --output         Destination file for -e or -d option (if not provided, program will create same file with .enc extension)\n"
+          "    --help           Print this help message\n",
           stdout);
 
     printf(
         "Examples:\n"
-        "\t%s -r file.txt\n"
-        "\t%s -w -d encrypted.txt file.txt\n",
+        "\t%s -d file.txt\n"
+        "\t%s -e file.txt -o encrypted.txt\n",
         PROGRAM_NAME, PROGRAM_NAME);
 }
 
 char *password_prompt()
 {
-    char *password = getpass("Enter key: ");
+    char *password = getpass("Enter passphrase: ");
     return password;
 }
 
@@ -124,11 +124,11 @@ int main(int argc, char *argv[])
     {
         switch (opt)
         {
-        case 'r': // update arg name to be more relevant. -r and -w are not the best names
+        case 'd':
             prog_mode = READ;
             src_file = optarg;
             break;
-        case 'w':
+        case 'e':
             if (prog_mode == READ)
             {
                 fprintf(stderr, "%s: cannot specify both -r and -w\n", PROGRAM_NAME);
@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
             prog_mode = WRITE;
             src_file = optarg;
             break;
-        case 'd':
+        case 'o':
             if (prog_mode == WRITE)
             {
                 prog_mode = WRITE_WITH_DEST;
@@ -148,18 +148,18 @@ int main(int argc, char *argv[])
             }
             else
             {
-                fprintf(stderr, "%s: cannot specify -d without -w or -r\n", PROGRAM_NAME);
+                fprintf(stderr, "%s: cannot specify output file without -w or -r\n", PROGRAM_NAME);
                 return 1;
             }
             dest_file = optarg;
             break;
+        case 'h':
         default:
             print_usage();
             break;
         }
     }
 
-    // check if the user specified -w but not -d
     if (prog_mode == WRITE)
     {
         dest_file = malloc(strlen(src_file) + 5);
