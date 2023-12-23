@@ -72,7 +72,8 @@ Run the program with the desired options:
 ## Notes
 
 - The program supports reading from and writing to files, and it can also use standard input/output.
-- If the output file is not provided, the program appends ".enc" to the input file for encryption.
+- If the output file is not provided for encryption, the program appends ".enc" to the input file and creates a new encrypted file.
+- If the output file is not provided for decryption, the output will be shown to the console.
 - The program checks for valid combinations of options and provides error messages accordingly.
 - The XOR key used for encryption and decryption is derived from the passphrase.
 
