@@ -1,26 +1,38 @@
+/***********************************************************************************
+ *
+ * Created by: Vinit Chauhan (vinit-chauhan)
+ * Created on: 2023-12-23
+ * Description: A simple program that encrypts and decrypts files using XOR cipher.
+ *
+ ***********************************************************************************/
+
 #include <stdio.h>
 #include <fcntl.h>
 #include <getopt.h>
 #include <locale.h>
 #include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
 
 #define PROGRAM_NAME "cread"
 
 #define BUF_SIZE 4096
-#define nullptr NULL
 
 typedef enum
 {
+    NONE = -1,
     READ,
-    WRITE
+    WRITE,
+    WRITE_WITH_DEST,
+    READ_WITH_DEST,
 } prog_mode_t;
 
-int r_flag, w_flag, d_flag;
+prog_mode_t prog_mode = NONE;
 char *dest_file = NULL;
 
 char buf[BUF_SIZE];
 
-static char const *const short_options = "rwd:";
+static char const *const short_options = "r:w:d:";
 static struct option const long_options[] = {
     {"read", no_argument, NULL, 'r'},
     {"write", no_argument, NULL, 'w'},
@@ -52,6 +64,15 @@ char *password_prompt()
     return password;
 }
 
+// TODO:
+// 1 create md5 hash of password
+// 2 use md5 hash as key
+// 3 encrypt/decrypt using key
+// 3.1 if encrypting, store md5 hash in file header
+// 3.2 if decrypting, read md5 hash from file header
+// 4 store md5 hash in file header
+// 5 check if md5 hash in file header matches the password provided by user
+
 void encrypt(int infile, int outfile, char *key)
 {
     int key_len = strlen(key);
@@ -70,7 +91,7 @@ void encrypt(int infile, int outfile, char *key)
     }
 }
 
-void decrypt(int infile, char *key)
+void decrypt(int infile, int outfile, char *key)
 {
     int key_len = strlen(key);
     int len;
@@ -80,9 +101,8 @@ void decrypt(int infile, char *key)
         {
             buf[i] = buf[i] ^ key[i % key_len];
         }
-        write(STDOUT_FILENO, buf, len);
+        write(outfile, buf, len);
     }
-    write(STDOUT_FILENO, "\n", 1);
 }
 
 int main(int argc, char *argv[])
@@ -98,21 +118,39 @@ int main(int argc, char *argv[])
 
     key = password_prompt();
 
-    src_file = argv[argc - 1];
-
+    int err = 0;
     int opt;
-    while ((opt = getopt_long(argc, argv, short_options, long_options, nullptr)) != -1)
+    while ((opt = getopt_long(argc, argv, short_options, long_options, NULL)) != -1)
     {
         switch (opt)
         {
-        case 'r':
-            r_flag = 1;
+        case 'r': // update arg name to be more relevant. -r and -w are not the best names
+            prog_mode = READ;
+            src_file = optarg;
             break;
         case 'w':
-            w_flag = 1;
+            if (prog_mode == READ)
+            {
+                fprintf(stderr, "%s: cannot specify both -r and -w\n", PROGRAM_NAME);
+                return 1;
+            }
+            prog_mode = WRITE;
+            src_file = optarg;
             break;
         case 'd':
-            d_flag = 1;
+            if (prog_mode == WRITE)
+            {
+                prog_mode = WRITE_WITH_DEST;
+            }
+            else if (prog_mode == READ)
+            {
+                prog_mode = READ_WITH_DEST;
+            }
+            else
+            {
+                fprintf(stderr, "%s: cannot specify -d without -w or -r\n", PROGRAM_NAME);
+                return 1;
+            }
             dest_file = optarg;
             break;
         default:
@@ -121,45 +159,41 @@ int main(int argc, char *argv[])
         }
     }
 
-    // check if the user specified either -r or -w
-    if ((r_flag && w_flag) || (!r_flag && !w_flag))
-    {
-        fprintf(stderr, "%s: must specify either -r or -w\n", PROGRAM_NAME);
-        return 1;
-    }
-
     // check if the user specified -w but not -d
-    if (w_flag && !d_flag)
+    if (prog_mode == WRITE)
     {
-        dest_file = strcat(src_file, ".enc");
+        dest_file = malloc(strlen(src_file) + 5);
+        strcpy(dest_file, src_file);
+        strcat(dest_file, ".enc");
     }
 
     // open the files for reading and writing
     if ((infile = open(src_file, O_RDONLY)) < 0)
     {
-        fprintf(stderr, "%s: cannot open file %s\n", PROGRAM_NAME, src_file);
+        fprintf(stderr, "%s: cannot open source file %s\n", PROGRAM_NAME, src_file);
         return -1;
     }
 
-    printf("src_file: %s\n", src_file);
-    printf("%d\n", d_flag);
-
-    if (d_flag && (outfile = open(dest_file, O_WRONLY | O_CREAT | O_TRUNC, 0644)) < 0)
+    if ((prog_mode != READ) && (outfile = open(dest_file, O_CREAT | O_WRONLY | O_TRUNC, 0644)) < 0)
     {
-        fprintf(stderr, "%s: cannot open file %s\n", PROGRAM_NAME, dest_file);
+        fprintf(stderr, "%s: cannot open destination file %s\n", PROGRAM_NAME, dest_file);
         return 1;
     }
 
-    // encrypt or decrypt the file
-    if (r_flag)
+    switch (prog_mode)
     {
-        printf("decrypting...\n");
-        decrypt(infile, key);
-    }
-    else if (w_flag)
-    {
-        printf("encrypting...\n");
+    case READ:
+        outfile = STDOUT_FILENO;
+    case READ_WITH_DEST:
+        decrypt(infile, outfile, key);
+        break;
+    case WRITE:
+    case WRITE_WITH_DEST:
         encrypt(infile, outfile, key);
+        break;
+    default:
+        write(STDERR_FILENO, "Invalid option\n", 15);
+        break;
     }
 
     return 0;
