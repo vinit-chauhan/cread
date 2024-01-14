@@ -14,6 +14,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "aes.h"
+
 #define PROGRAM_NAME "cread"
 
 #define BUF_SIZE 4096
@@ -29,8 +31,6 @@ typedef enum
 
 prog_mode_t prog_mode = NONE;
 char *dest_file = NULL;
-
-char buf[BUF_SIZE];
 
 static char const *const short_options = "e:d:o:";
 static struct option const long_options[] = {
@@ -72,38 +72,6 @@ char *password_prompt()
 // 3.2 if decrypting, read md5 hash from file header
 // 4 store md5 hash in file header
 // 5 check if md5 hash in file header matches the password provided by user
-
-void encrypt(int infile, int outfile, char *key)
-{
-    int key_len = strlen(key);
-    int len;
-    while ((len = read(infile, buf, BUF_SIZE)) > 0)
-    {
-        for (int i = 0; i < len; i++)
-        {
-            if (buf[i] == '\0')
-            {
-                break;
-            }
-            buf[i] = buf[i] ^ key[i % key_len];
-        }
-        write(outfile, buf, len);
-    }
-}
-
-void decrypt(int infile, int outfile, char *key)
-{
-    int key_len = strlen(key);
-    int len;
-    while ((len = read(infile, buf, BUF_SIZE)) > 0)
-    {
-        for (int i = 0; i < len; i++)
-        {
-            buf[i] = buf[i] ^ key[i % key_len];
-        }
-        write(outfile, buf, len);
-    }
-}
 
 int main(int argc, char *argv[])
 {
