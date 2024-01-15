@@ -23,7 +23,7 @@ void encrypt(int infile, int outfile, char *key)
 
 void decrypt(int infile, int outfile, char *key)
 {
-    char buf[BUF_SIZE];
+    __uint8_t buf[BUF_SIZE];
     int key_len = strlen(key);
     int len;
     while ((len = read(infile, buf, BUF_SIZE)) > 0)
