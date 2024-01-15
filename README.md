@@ -8,10 +8,11 @@ This C program provides a simple file encryption and decryption tool using the X
 
 ### Compilation
 
-Compile the program using a C compiler:
+Compile the program using build script (GCC):
+( Make sure the script has appropriate permission for execution )
 
 ```bash
-gcc -o cread cread.c
+./build.sh -bc
 ```
 
 ### Execution
