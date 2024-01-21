@@ -55,12 +55,3 @@ void decrypt(int infile, int outfile, __uint8_t *key)
         write(outfile, buf, len);
     }
 }
-
-int do_aes_encrypt(__uint8_t *key, __uint8_t *input, __uint8_t *output)
-{
-    return 0;
-}
-int do_aes_decrypt(__uint8_t *key, __uint8_t *input, __uint8_t *output)
-{
-    return 0;
-}
