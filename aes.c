@@ -16,15 +16,17 @@ __uint8_t *expand_key(char *key)
 
     __uint8_t *new_key = (__uint8_t *)malloc(KEY_SIZE_BYTES);
 
+    // repeats the short key to fill the whole length
+    // and add some randomness to the key
     for (int i = 0; i < KEY_SIZE_BYTES; i++)
     {
-        new_key[i] = key[i % key_len];
+        new_key[i] = key[i % key_len] ^ (i * 5 + 1);
     }
 
     return new_key;
 }
 
-void encrypt(int infile, int outfile, char *key)
+void encrypt(int infile, int outfile, __uint8_t *key)
 {
     __uint8_t buf[BUF_SIZE_BYTES];
     int key_len = strlen(key);
@@ -39,7 +41,7 @@ void encrypt(int infile, int outfile, char *key)
     }
 }
 
-void decrypt(int infile, int outfile, char *key)
+void decrypt(int infile, int outfile, __uint8_t *key)
 {
     __uint8_t buf[BUF_SIZE_BYTES];
     int key_len = strlen(key);
