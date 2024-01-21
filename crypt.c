@@ -7,9 +7,6 @@
 #define BUF_SIZE_BYTES 128 / 8
 #define KEY_SIZE_BYTES 128 / 8
 
-int do_aes_encrypt(__uint8_t *key, __uint8_t *input, __uint8_t *output);
-int do_aes_decrypt(__uint8_t *key, __uint8_t *input, __uint8_t *output);
-
 __uint8_t *expand_key(char *key)
 {
     int key_len = strlen(key);

@@ -11,7 +11,7 @@ if [ $# -eq 1 ]; then
     fi
 fi
 
-gcc -o bin/cread cread.c aes.c
+gcc -o bin/cread cread.c crypt.c
 
 if [ $? -eq 0 ]; then
     echo "Build successful"

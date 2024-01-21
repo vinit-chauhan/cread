@@ -14,7 +14,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "aes.h"
+#include "crypt.h"
 
 #define PROGRAM_NAME "cread"
 
@@ -87,6 +87,13 @@ int main(int argc, char *argv[])
     key = password_prompt();
 
     __uint8_t *key_expanded = expand_key(key);
+
+    printf("key: %s\n key expanded: [", key);
+    for (int i = 0; i < 16; i++)
+    {
+        printf("%c ", key_expanded[i]);
+    }
+    printf("]\n");
 
     int err = 0;
     int opt;

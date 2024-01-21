@@ -1,5 +1,7 @@
-#ifndef AES_H
-#define AES_H
+#include <bits/types.h>
+
+#ifndef CRYPT_H
+#define CRYPT_H
 
 /*
  * infile: input file descriptor
