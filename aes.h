@@ -2,13 +2,23 @@
 #define AES_H
 
 /*
- return: staus
-*/
+ * infile: input file descriptor
+ * outfile: output file descriptor
+ * key: encryption key
+ */
 void encrypt(int infile, int outfile, char *key);
 
 /*
- return: staus
-*/
+ * infile: input file descriptor
+ * outfile: output file descriptor
+ * key: encryption key
+ */
 void decrypt(int infile, int outfile, char *key);
+
+/*
+ * return: expanded key ( 128 bits )
+ * key: encryption key
+ */
+__uint8_t *expand_key(char *key);
 
 #endif

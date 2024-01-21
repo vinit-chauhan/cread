@@ -1,8 +1,8 @@
-!#/bin/bash
+#!/bin/bash
 
 mkdir -p bin
 
-if [ $# -eq 1]; then
+if [ $# -eq 1 ]; then
     if [ $1 == "-c" ]; then
         rm -rf test/*.enc
         exit 0

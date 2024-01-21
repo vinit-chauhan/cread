@@ -86,6 +86,8 @@ int main(int argc, char *argv[])
 
     key = password_prompt();
 
+    __uint8_t *key_expanded = expand_key(key);
+
     int err = 0;
     int opt;
     while ((opt = getopt_long(argc, argv, short_options, long_options, NULL)) != -1)
@@ -153,11 +155,11 @@ int main(int argc, char *argv[])
     case READ:
         outfile = STDOUT_FILENO;
     case READ_WITH_DEST:
-        decrypt(infile, outfile, key);
+        decrypt(infile, outfile, key_expanded);
         break;
     case WRITE:
     case WRITE_WITH_DEST:
-        encrypt(infile, outfile, key);
+        encrypt(infile, outfile, key_expanded);
         break;
     default:
         write(STDERR_FILENO, "Invalid option\n", 15);
