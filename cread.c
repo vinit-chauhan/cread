@@ -64,15 +64,6 @@ char *password_prompt()
     return password;
 }
 
-// TODO:
-// 1 create md5 hash of password
-// 2 use md5 hash as key
-// 3 encrypt/decrypt using key
-// 3.1 if encrypting, store md5 hash in file header
-// 3.2 if decrypting, read md5 hash from file header
-// 4 store md5 hash in file header
-// 5 check if md5 hash in file header matches the password provided by user
-
 int main(int argc, char *argv[])
 {
     char *key = NULL, *src_file = NULL;
@@ -87,13 +78,6 @@ int main(int argc, char *argv[])
     key = password_prompt();
 
     __uint8_t *key_expanded = expand_key(key);
-
-    printf("key: %s\n key expanded: [", key);
-    for (int i = 0; i < 16; i++)
-    {
-        printf("%c ", key_expanded[i]);
-    }
-    printf("]\n");
 
     int err = 0;
     int opt;
