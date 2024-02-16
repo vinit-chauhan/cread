@@ -36,3 +36,6 @@ test/*
 
 # Output files
 bin/*
+
+# build dir for Rust implementation.
+cread-rust/target/*
