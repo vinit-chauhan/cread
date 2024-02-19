@@ -1,3 +1,6 @@
+use anyhow::anyhow;
+
+const PROGRAM_NAME: &'static str = "cread";
 #[derive(Debug)]
 pub struct UserInput {
     is_encrypt: bool,
@@ -16,6 +19,23 @@ impl UserInput {
         }
     }
 
+    pub fn print_usage() {
+        let menu_blob: String = format!(
+"
+Usage: {PROGRAM_NAME} [OPTION] <filename> 
+OPTIONS:
+    -d, --decrypt        Decrypt the file with given password and read encrypted file
+    -e, --encrypt        Encrypt the file with given password to filename provided by --output
+    -o, --output         Destination file for -e or -d option (if not provided, program will create same file with .enc extension)
+        --help           Print this help message
+Examples:
+    {PROGRAM_NAME} -d file.txt
+    {PROGRAM_NAME} -e file.txt -o encrypted.txt"
+        );
+
+        println!("{menu_blob}");
+    }
+
     pub fn set_user_input(&mut self, args: Vec<String>) {
         let mut is_last_arg_output: bool = false;
         for arg in args {
@@ -24,20 +44,40 @@ impl UserInput {
                 is_last_arg_output = false;
                 continue;
             }
-            if let Some(opt) = arg.strip_prefix("-") {
-                if opt == "e" || opt == "encrypt" {
+
+            match &arg[..] {
+                "-e" | "--encrypt" => {
                     self.is_encrypt = true;
-                    self.is_help = false;
-                } else if opt == "d" || opt == "decrypt" {
+                    self.is_help = false
+                }
+                "-d" | "--decrypt" => {
                     self.is_decrypt = true;
-                    self.is_help = false;
-                } else if opt == "help" {
-                    self.is_help = true;
-                } else if opt == "o" || opt == "output" {
+                    self.is_help = false
+                }
+                "-o" | "--output" => {
                     is_last_arg_output = true;
                     self.is_help = false;
                 }
+                _ => self.is_help = true,
             }
+        }
+    }
+
+    pub fn validate(&self) -> Result<bool, anyhow::Error> {
+        // Update the return type
+        if self.is_encrypt && self.is_decrypt {
+            return Err(anyhow!("Invalid input"));
+        }
+
+        let file: bool = match &self.output_file {
+            Some(path) => std::path::Path::new(&path).is_file(),
+            None => true,
+        };
+
+        if file {
+            Ok(file)
+        } else {
+            Err(anyhow!("Unable to open file."))
         }
     }
 }
