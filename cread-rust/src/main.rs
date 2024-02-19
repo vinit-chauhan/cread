@@ -14,6 +14,8 @@ fn main() -> ExitCode {
 
     if let Err(e) = input.validate() {
         println!("[ERROR]: {}", e.to_string());
+        UserInput::print_usage();
+
         return ExitCode::FAILURE;
     }
 
