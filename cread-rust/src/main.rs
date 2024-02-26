@@ -1,6 +1,8 @@
 extern crate cread_rust;
 use std::{env, process::ExitCode};
 
+mod crypt;
+
 use crate::cread_rust::UserInput;
 
 const BUFF_SIZE: usize = 4096;

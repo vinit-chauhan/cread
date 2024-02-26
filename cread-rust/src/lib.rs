@@ -1,12 +1,22 @@
 use anyhow::anyhow;
 
 const PROGRAM_NAME: &'static str = "cread";
+
+#[derive(Debug)]
+enum CryptType {
+    CAESAR,
+    SHA256,
+}
+
 #[derive(Debug)]
 pub struct UserInput {
     is_encrypt: bool,
     is_decrypt: bool,
     is_help: bool,
     output_file: Option<String>,
+
+    #[allow(dead_code)]
+    algo: CryptType,
 }
 
 impl UserInput {
@@ -16,6 +26,7 @@ impl UserInput {
             is_encrypt: false,
             is_help: true,
             output_file: None,
+            algo: CryptType::CAESAR,
         }
     }
 
