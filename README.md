@@ -3,6 +3,7 @@
 ## Overview
 
 This C program provides a simple file encryption and decryption tool using the XOR cipher. The XOR cipher is a basic symmetric key algorithm that operates by bitwise XORing each byte of the plaintext with a corresponding byte of the key.
+Note: We are re-creating the utility in Rust to leverage Memory-safety, and With the rust implementation, we will be incorporating more encryption algorithms. 
 
 ## Usage
 
